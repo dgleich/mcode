@@ -10,6 +10,7 @@ function [n,x] = dhist(y)
 %   
 
 % TODO Check that y is discrete
+y = y(:); % correct the shape
 
 ymin = min(y);
 ymax = max(y);
@@ -18,6 +19,7 @@ if (ymax-ymin)>2*numel(y)
     spaccum=true; % accumulate the entries into a sparse vector
 else
     spaccum=false;
+end    
 yhist = accumarray(y-ymin+1,1,[],[],[],spaccum);
 n = find(yhist)-1+ymin;
 x = nonzeros(yhist);

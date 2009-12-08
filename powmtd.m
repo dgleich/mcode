@@ -21,25 +21,26 @@ function [lambda x] = powmtd(A,optionsu)
 %   [positive scalar] (default = sqrt(eps))
 % modifiedinitits - initial modified power iterations to detect which 
 %   method to use [positive integer] (default = 100)
-%
-
 
 [m n] = size(A);
 if (m ~= n)
     error('powmtd:invalidParameter', 'matrix must be square');
-end;
+end
 
 % default options
 options = struct('shift', 0, 'tol', sqrt(eps(1)), 'maxiter', 1000, ...
-    'x0', rand(n,1), 'simple', 'yes', 'tol1', sqrt(eps(1)), ...
+    'x0', [], 'simple', 'yes', 'tol1', sqrt(eps(1)), ...
     'modifiedinitits', 100);
 
 % merge user options if specified
-if (nargin >= 2)
-    options = merge_structs(optionsu, options);
-end;
+if exist('optionsu','var')
+    for fi = fieldnames(options)'
+        if isfield(optionsu,fi), options.(fi) = optionsu.(fi); end
+    end
+end
 
 x = options.x0;
+if isempty(x), x = rand(n,1); end
 
 % normalize initial guess
 x = x./norm(x);
@@ -47,12 +48,18 @@ x = x./norm(x);
 lambda = 1;
 iter = 1;
 
+simple = strcmpi(options.simple, 'yes');
+maxiter = options.maxiter;
+modifiediter = options.modifiedinitits;
+tol = options.tol;
+tol1 = options.tol1;
+
 % always start with one iteration
 delta = options.tol + 1;
 
-if (options.shift == 0 && strcmpi(options.simple, 'yes'))
+if options.shift == 0 && simple
     % simple iteration w/o shift
-    while (iter < options.maxiter && delta > options.tol)
+    while iter < maxiter && delta > tol
         % can be done with two in place iterations if memory is a concern...
         Ax = A*x;
         lambda = x'*Ax;
@@ -62,13 +69,13 @@ if (options.shift == 0 && strcmpi(options.simple, 'yes'))
         x = x2;
         
         iter = iter+1;
-    end;
-    
-elseif (strcmpi(options.simple, 'yes'))
+    end
+elseif simple
     % simple iteration with shift
-    while (iter < options.maxiter && delta > options.tol)
+    sigma = options.shift;
+    while iter < maxiter && delta > tol
         % can be done with two in place iterations if memory is a concern...
-        Ax = A*x - options.shift.*x;
+        Ax = A*x - sigma*x;
         lambda = x'*Ax;
         x2 = Ax ./ norm(Ax);
         % normalize the sign before doing the difference
@@ -76,11 +83,10 @@ elseif (strcmpi(options.simple, 'yes'))
         x = x2;
         
         iter = iter+1;
-    end;
+    end
 else
     iter = 1;
-    while (iter < options.maxiter && iter < options.modifiedinitits && ...
-            delta > options.tol)
+    while iter < maxiter && iter < modifiediter && delta > tol
         % can be done with two in place iterations if memory is a concern...
         Ax = A*x;
         lambda = x'*Ax;
@@ -90,13 +96,13 @@ else
         x = x2;
         
         iter = iter+1;
-    end;
+    end
     
     detW = det([Ax'*Ax Ax'*x; Ax'*x x'*x]);
     cold = zeros(2,1);
     
-    % modified power iteration
-    while (iter < options.maxiter && delta > options.tol)
+    % modified power iteration to get complex eigenvalues
+    while iter < maxiter && delta > tol
         % save previous iteration
         xp = x;
         Ax = A*x;
@@ -107,9 +113,9 @@ else
 
         W = [Ax'*Ax Ax'*x; Ax'*x x'*x];
         detW = det(W);
-        if (det(W) < options.tol1 || rcond(W) < options.tol1)
-            break;
-        end;
+        if det(W) < tol1 || rcond(W) < tol1
+            break
+        end
 
         w = A*Ax;
         c = W \ -([Ax'*w; x'*w]);
@@ -123,12 +129,12 @@ else
     end;
     
     % fall through to simple mode
-    if (detW < options.tol1 || rcond(W) < options.tol1)
+    if detW < tol1 || rcond(W) < tol1
         % turn off simple mode...
-        options.simple = 'yes';
+        simple = 1;
         
         % should probably have made this a subroutine...
-        while (iter < options.maxiter && delta > options.tol)
+        while iter < maxiter && delta > tol
             % can be done with two in place iterations if memory is a concern...
             Ax = A*x;
             lambda = x'*Ax;
@@ -138,19 +144,20 @@ else
             x = x2;
 
             iter = iter+1;
-        end;
-    end;
-end;
+        end
+    end
+end
 
-if (iter ==  options.maxiter && delta > options.tol)
+if iter ==  options.maxiter && delta > options.tol
     warning('powmtd:didNotConverge', ...
-        'power iterations did not converge after %i iterations to %e tolerance; achieved tolerance %e', ...
+        ['power iterations did not converge after %i iterations\n'
+         'to %e tolerance; achieved tolerance %e'], ...
         options.maxiter, options.tol, delta);
-end;
+end
 
 lambda = x'*(A*x);
 
-if (strcmpi(options.simple, 'yes') == 0)
+if ~simple
     % the method converged, so compute the eigenvalues/eigenvectors
     
     p = c(1);
@@ -162,4 +169,4 @@ if (strcmpi(options.simple, 'yes') == 0)
     lambda = diag([l1 l2]);
     x = [Ax - l2*x  Ax - l1*x];
     x = x * diag(1./sqrt(sum(x.^2)));
-end;
+end

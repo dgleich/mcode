@@ -7,6 +7,9 @@ function A = readSMAT(filename)
 %   A - the MATLAB sparse matrix
 %
 
+% David Gleich
+% Copyright, Stanford University, 2005-2010
+
 if (~exist(filename,'file'))
     error('readSMAT:fileNotFound', 'Unable to read file %s', filename);
 end
@@ -29,7 +32,8 @@ if ~isempty(strfind(ext,'.gz'))
     return;
 end;
 
-s = load(filename);
+
+s = load(filename,'-ascii');
 m = s(1,1);
 n = s(1,2);
 try
@@ -37,7 +41,7 @@ try
     ind_j = s(2:length(s),2)+1;
     val = s(2:length(s),3);
     A = sparse(ind_i,ind_j,val, m, n);
-catch 
+catch
     fprintf('... trying block read ...\n');
     blocksize = 1000000;
     curpos = 2;
@@ -60,3 +64,28 @@ catch
     
 end
 
+
+function S = merge_structs(A, B)
+% MERGE_STRUCTS Merge two structures.
+%
+% S = merge_structs(A, B) makes the structure S have all the fields from A
+% and B.  Conflicts are resolved by using the value in A.
+%
+
+%
+% merge_structs.m
+% David Gleich
+%
+% Revision 1.00
+% 19 Octoboer 2005
+%
+
+S = A;
+
+fn = fieldnames(B);
+
+for ii = 1:length(fn)
+    if ~isfield(A, fn{ii})
+        S.(fn{ii}) = B.(fn{ii});
+    end
+end

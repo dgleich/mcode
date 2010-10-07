@@ -24,7 +24,8 @@ yhist = accumarray(y-ymin+1,1,[],[],[],spaccum);
 n = find(yhist)-1+ymin;
 x = nonzeros(yhist);
 
-if nargout==0,
+if nargout==0
     bar(n,x);
+    clear n x % prevent the return in this case
 end
 

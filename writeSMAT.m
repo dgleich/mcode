@@ -12,6 +12,8 @@ function writeSMAT(filename, A, optionsu)
 %   options.blocksize blocksize to write out extremely large matrices.
 %
 
+% David Gleich
+% Copyright, 2005-2010
 
 options = struct('format', '%f', 'ut', 'no', 'graph', 'no', ...
     'onebased', 'no', 'blocksize', 1000000);
@@ -29,10 +31,16 @@ if (strcmp(options.ut', 'yes'))
     [i, j, v] = find(A);
 else
     [i, j, v] = find(A);
-end;
+end
 
 nz = length(i);
 [m n] = size(A);
+
+if m==1,
+    i = i';
+    j = j';
+    v = v';
+end
 
 if (strcmp(options.graph, 'yes'))
     fprintf(fid, '%i %i\n', m, nz);

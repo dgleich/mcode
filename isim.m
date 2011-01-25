@@ -2,8 +2,8 @@ function isk=isim(x,y,ties,delta)
 % ISIM Intersection similarity 
 %
 % isk = isim(x,y) returns the intersection similarity at k for each value
-% of k between 1 and n assuming that vectors x and y give a numeric ranking
-% for n items where x(i) and y(i) are the numeric rankings for item it.  
+% of k between 1 and n assuming that vectors x and y give a numeric rating
+% for n items where x(i) and y(i) are the numeric scores for item i.  
 %
 % The intersection similarity at k is the average of the normalized
 % intersection size for 1 <= t <= k, mathematically,
@@ -13,9 +13,9 @@ function isk=isim(x,y,ties,delta)
 %
 % Example:
 % 
-% isk = isim([1 2 3 4 5 6],[1 2 3 4 5 6]) % identical rankings
-% isk = isim([1 2 3 4 5 6],[6 5 4 3 2 1]) % disjoint rankings
-% isk = isim([3 2 1 4 5 6],[1 2 3 4 5 6]) % ranks top 3 the same
+% isk = isim([1 2.5 3 4 5 6],[1 2.4 3 4 5.3 6]) % identical ratings
+% isk = isim([1 2 3 4 5 6],[6 5 4 3 2 1]) % reversed ratings
+% isk = isim([3 2 1 4 5 6],[1 2 3 4 5 6]) % rates top 3 the same.
 % 
 
 if ~exist('ties','var') || isempty(ties), ties=false; end

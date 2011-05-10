@@ -40,7 +40,7 @@ else
         [i,j,v] = find(A);
         [m,n] = size(A);
         % todo integrate these two
-        L = sparse(i,j,-v./(d(i).*d(j)),m, n);
+        L = sparse(i,j,-v.*(d(i).*d(j)),m, n);
         L = L + speye(n); % note the negative above
     else
         L = eye(n) + diag(sparse(d))*A*diag(sparse(d));

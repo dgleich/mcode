@@ -8,13 +8,13 @@ function x=chebpts(N,varargin)
 %
 %x=chebpts(N) returns the N+1 Chebyshev points on [-1,1]
 %x=chebpts(N,[a,b]) returns the N+1 Chebyshev points on [a,b]
-%x=chebpts(N,[a,b],'falling'] returns N "half" Chebyshev points on [a,b] so
+%x=chebpts(N,[a,b],'right'] returns N "half" Chebyshev points on [a,b] so
 %    that [x(1)-x(end-1:-1:1) x] is a full set of 2N-1 Chebyshev points on
 %    the interval [a-(b-a),b].  
-%x=chebpts(N,[a,b],'rising'] returns N "half" Chebyshev points on [a,b] so
+%x=chebpts(N,[a,b],'left'] returns N "half" Chebyshev points on [a,b] so
 %    that [x x(1)+x(end-1:-1:1)] is a full set of 2N-1 Chebyshev points on
 %    the interval [a,b+(b-a)].  
-%x=chebpts(N,[a,b],'inner'] returns N "inner" Chebyshev points on (a,b) so
+%x=chebpts(N,[a,b],'r'] returns N "inner" Chebyshev points on (a,b) so
 %    that [b x a] is a full set of N+3 Chebyshev points on [a,b]
 %
 % The 'rising' and 'falling' set correspond to the half set of Chebyshev
@@ -46,7 +46,8 @@ elseif length(varargin) == 2
     ptset = varargin{2};
     switch ptset
         case 'full', 
-        case 'rising', N = 2*N-1; case 'falling', N=2*N-1;
+        case 'right', N = 2*N; ab(1) = ab(1) - (ab(2)-ab(1));
+        case 'left', N=2*N; ab(2) = ab(1) + 2*(ab(2)-ab(1));
         case 'inner', N = N+2;
         otherwise, error('chebpts:unknownParameter',...
                 '%s is not a valid Chebyshev point set',ptset);
@@ -59,4 +60,6 @@ x=min(ab)+(ab(2)-ab(1))*(x+1)./2;
 
 switch ptset
     case 'inner', x=x(2:end-1);
+    case 'right', x=x(1:floor(N/2+1));
+    case 'left', x=x(floor(N/2+1):end);
 end

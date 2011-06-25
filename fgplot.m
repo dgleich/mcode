@@ -33,13 +33,14 @@ redclr = [0.8,0,0];
 rehold = ishold;
 
 [lx,ly]=gplot(A,xy); 
-h=plot(lx,ly,'k-','LineWidth',graphlw);
+%h=plot(lx,ly,'k-','LineWidth',graphlw);
+h = aplot(lx,ly,'plotcolor',graphclr);
+set(h,'LineWidth',graphlw);
 
 set(gcf,'Color',bkgcolor);
 hold on; 
 axis off; 
 
-set(h,'Color',graphclr); 
 axis square;
 
 add_border(xy, bkgcolor, 0.05);

@@ -40,6 +40,7 @@ try
     ind_i = s(2:length(s),1)+1;
     ind_j = s(2:length(s),2)+1;
     val = s(2:length(s),3);
+    clear s;
     A = sparse(ind_i,ind_j,val, m, n);
 catch
     fprintf('... trying block read ...\n');

@@ -34,9 +34,17 @@ p.addParamValue('Background',0.83*[1,1,1],@iscolor);
 p.addParamValue('Color',0.55*[1,1,1],@iscolor);
 p.addParamValue('MarkerSize',10,@isnumeric);
 p.addParamValue('MarkerColor',[0.8,0,0],@iscolor);
+p.addParamValue('Style','thin',...
+                 @(x) any(validatestring(x,{'thin','thick'})));
 
 p.parse(varargin{:});  
 opts = p.Results;
+
+if strcmp(opts.Style,'thick')
+    opts.MarkerSize = 25;
+    opts.LineWidth = 1.25;
+    opts.Alpha = 0.5;
+end
 
 % Generate the graph
 rehold = ishold;
